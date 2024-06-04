@@ -1,0 +1,276 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css" rel="stylesheet">
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+@*<div class="text-center">
+        <h1 class="display-4">Welcome</h1>
+        <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    </div>*@
+
+<header class="header header-sticky p-0 mb-4">
+    <div class="container-fluid border-bottom px-4">
+        <button class="header-toggler" type="button" onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()" style="margin-inline-start: -14px;">
+            <svg class="icon icon-lg">
+                <use xlink:href="assets/icons/sprites/free.svg#cil-menu"></use>
+            </svg>
+        </button>
+    </div>
+    <div class="container-fluid px-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb my-0">
+                <li class="breadcrumb-item">
+                    <a href="#">Home</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <span>Penjualan</span>
+                </li>
+                <li class="breadcrumb-item active">
+                    <span>Tambah Penjualan</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+</header>
+<div class="body flex-grow-1">
+    <div class="container-lg px-4">
+        <div class="card mb-4">
+            <div class="card-header"><strong>Tambah Penjualan</strong></div>
+            <div class="card-body">
+                
+                <div>
+                    <div class="col-md-6 mb-4" id="formHead">
+                        <div class="row mb-2">
+                            <label for="inputTanggal" class="col-sm-4 col-form-label">Tanggal</label>
+                            <div class="col-sm-8">
+                                <input type="date" class="form-control" id="inputTanggal">
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <label for="inputNoBon" class="col-sm-4 col-form-label">No. Bon</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="inputNoBon">
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <label for="inputPelanggan" class="col-sm-4 col-form-label">Pelanggan</label>
+                            <div class="col-sm-8">
+                                <select class="form-select" id="inputPelanggan" aria-label="Pilih Pelanggan">
+                                    <option selected>Karno</option>
+                                    <option value="1">One</option>
+                                    <option value="2">Two</option>
+                                    <option value="3">Three</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <label for="inputDiskon" class="col-sm-4 col-form-label">Diskon (%)</label>
+                            <div class="col-sm-8">
+                                <input type="number" onchange="refreshTable()" min="1" max="100" step="1" class="form-control" id="inputDiskon">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-8">
+                        <h6 class="text-muted">Tambah Item</h6>
+                        <hr>
+                        <table id="addItem" class="formTable table table-bordered" width="100%">
+                            <thead>
+                                <tr>
+                                    <td>Barang</td>
+                                    <td>Qty</td>
+                                    <td>Harga Satuan (Rp)</td>
+                                    <td>Diskon (%)</td>
+                                    <td>Total</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><select id="addItemBarang" placeholder="Pilih Barang"><option value="1" data-stock="10">Gelang</option></select></td>
+                                    <td><input id="addItemQty" type="number" min="1" step="1" onchange="checkStock()" /> </td>
+                                    <td><input id="addItemHarga" type="number" min="1" step="1" /> </td>
+                                    <td><input id="addItemDiskon" type="number" min="1" step="1" onchange="hitungItem()" /> </td>
+                                    <td><input id="addItemTotal" disabled type="number"/> </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="col-12 mb-4">
+                            <button class="position-sticky end-0 btn btn-primary" id="addItemSubmit">Tambah</button>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <h6 class="text-muted">Daftar Item</h6>
+                        <hr>
+                        <table id="listItem" class="formTable table table-bordered" width="100%">
+                            <thead>
+                                <tr>
+                                    <td>Barang</td>
+                                    <td>Qty</td>
+                                    <td>Harga Satuan (Rp)</td>
+                                    <td>Diskon</td>
+                                    <td>Total</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4">Sub Total</td>
+                                    <td class="text-end" id="summarySubTotal"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">Diskon</td>
+                                    <td class="text-end" id="summaryDiskon"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">PPN</td>
+                                    <td class="text-end" id="summaryPPN"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">Total</td>
+                                    <td class="text-end" id="summaryTotal"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let items = [];
+    // let diskon = 0;
+    let subTotal = 0;
+    let totalDiskon = 0;
+    let total = 0;
+    let dpp = 0;
+    let ppn = 0;
+    const persentasePPN = 11 / 100; // 11%
+
+    function checkStock() {
+        const stock = $('#addItemBarang option:selected').attr('data-stock') || 1;
+        const itemQty = $('#addItemQty').val();
+        if (parseInt(itemQty) > parseInt(stock)) {
+            return false;
+        } else {
+            hitungItem();
+        }
+    }
+
+    function hitungItem() {
+        const itemHarga = parseInt($('#addItemHarga').val());
+        const itemQty = parseInt($('#addItemQty').val());
+        const itemDiskon = parseInt($('#addItemDiskon').val());
+
+        const itemTotal = (itemHarga * itemQty) * (1 - (itemDiskon / 100));
+
+        $('#addItemTotal').val(Math.ceil(itemTotal))
+
+    }
+
+    function addItem() {
+        const itemBarang = $('#addItemBarang');
+        const itemHarga = parseInt($('#addItemHarga').val());
+        const itemQty = parseInt($('#addItemQty').val());
+        const itemDiskon = parseInt($('#addItemDiskon').val());
+        // const itemTotal = $('#addItemTotal');
+
+        // const diskonPerBon = diskon / 100;
+        // const diskonPerItem = (itemDiskon / 100) * (1 - diskonPerBon);
+        const diskonPerItem = itemDiskon / 100;
+
+        const itemTotalKalkulasi = itemHarga * itemQty;
+        const itemTotalDiskon = diskonPerItem * itemTotalKalkulasi;
+
+        items.push({
+            barang: { nama: itemBarang.find('option:selected').html(), id: itemBarang.val() },
+            harga: itemHarga,
+            qty: itemQty,
+            diskon: itemTotalDiskon,
+            total: (itemTotalKalkulasi - itemTotalDiskon)
+        });
+    }
+
+    function clearAddItem() {
+        const itemBarang = $('#addItemBarang');
+        const itemHarga = $('#addItemHarga');
+        const itemQty = $('#addItemQty');
+        const itemDiskon = $('#addItemDiskon');
+        const itemTotal = $('#addItemTotal');
+
+        itemBarang.clear();
+        itemHarga.clear();
+        itemQty.clear();
+        itemDiskon.clear();
+        itemTotal.clear();
+    }
+
+    function refreshTable() {
+        const dataContainer = $('#listItem tbody');
+        const diskon = parseInt($('#inputDiskon').val()) || 0;
+        content = '';
+
+        subTotal = 0;
+        totalDiskon = 0;
+        total = 0;
+        
+        items.forEach(item => {
+            const _harga = formatRp(item.harga);
+            const _diskon = formatRp(item.diskon);
+            const _total = formatRp(item.total);
+            content += `<tr>
+                <td>${item.barang.nama}</td>
+                <td class="text-end">${item.qty}</td>
+                <td class="text-end">${_harga}</td>
+                <td class="text-end">${_diskon}</td>
+                <td class="text-end">${_total}</td>
+            </tr>`;
+            subTotal += item.total;
+        });
+
+        dataContainer.empty();
+        dataContainer.append(content);
+
+        totalDiskon = (diskon / 100) * subTotal;
+        dpp = (subTotal - totalDiskon);
+        ppn = persentasePPN * dpp;
+        total = dpp +  ppn;
+
+        updateKalkulasi();
+    }
+
+    function updateKalkulasi() {
+        $('#summarySubTotal').html(formatRp(subTotal));
+        $('#summaryDiskon').html(formatRp(totalDiskon));
+        $('#summaryPPN').html(formatRp(ppn));
+        $('#summaryTotal').html(formatRp(total));
+    }
+
+    function formatRp(number) {
+        number = number || 0;
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
+            number,
+        );
+    }
+
+    $(document).ready(() => {
+
+        $('#addItemSubmit').on('click', () => {
+            addItem();
+            // clearAddItem();
+            refreshTable();
+        });
+    });
+</script>
